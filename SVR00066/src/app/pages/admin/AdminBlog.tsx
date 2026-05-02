@@ -1,0 +1,1 @@
+export { AdminBlog } from './AdminPages';

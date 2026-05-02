@@ -1,0 +1,1 @@
+export { AdminInquiries } from './AdminPages';
