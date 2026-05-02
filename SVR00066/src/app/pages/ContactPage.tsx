@@ -12,6 +12,7 @@ const SUBJECTS = ['Product Enquiry','Bulk / HoReCa Order','Sample Request','Reta
 export function ContactPage() {
   const { settings } = useSiteSettings();
   const { data: seo } = usePageSeo('contact');
+  const contactImg = settings.img_contact_hero ?? '/images/contact.webp';
   const [form, setForm]     = useState({ name:'', email:'', phone:'', subject:'Product Enquiry', message:'' });
   const [sent, setSent]     = useState(false);
   const [sending, setSending] = useState(false);
@@ -46,7 +47,7 @@ export function ContactPage() {
       <SEO title={seo?.title ?? 'Contact — Srivriddhi Enterprise'} description={seo?.description ?? undefined} />
       <style>{`
         .ct-hero { position:relative; width:100%; height:68vh; min-height:460px; overflow:hidden; display:flex; align-items:flex-end; }
-        .ct-bg   { position:absolute; inset:0; background-image:url('/images/contact.webp'); background-size:cover; background-position:center 25%; }
+        .ct-bg   { position:absolute; inset:0; background-image:url('${contactImg}'); background-size:cover; background-position:center 25%; }
         .ct-grad { position:absolute; inset:0; background:linear-gradient(to top, rgba(5,5,5,0.97) 0%, rgba(5,5,5,0.58) 38%, rgba(5,5,5,0.18) 65%, transparent 100%); }
         .ct-content { position:relative; z-index:2; width:100%; max-width:var(--max-w); margin:0 auto; padding:0 var(--pad) 72px; }
         .ct-grid { display:grid; grid-template-columns:1fr 1fr; gap:52px; padding:72px 0; }

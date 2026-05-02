@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router';
 import { motion } from 'framer-motion';
-import { useProducts, usePageSeo } from '../hooks';
+import { useProducts, usePageSeo, useSiteSettings } from '../hooks';
 import { SEO } from '../components/SEO';
 
 const FI = { hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0 } };
@@ -12,7 +12,9 @@ export function ProductsPage() {
   const [filter, setFilter] = useState('All');
   const { data: products, loading } = useProducts();
   const { data: seo } = usePageSeo('products');
+  const { settings } = useSiteSettings();
   const go = (p: string) => { navigate(p); window.scrollTo(0, 0); };
+  const productsImg = settings.img_products_hero ?? '/images/hero.webp';
 
   const categories = useMemo(() => {
     const cats = Array.from(new Set(products?.map(p => p.category) ?? []));
@@ -28,7 +30,7 @@ export function ProductsPage() {
       <SEO title={seo?.title ?? 'Products — Srivriddhi Enterprise'} description={seo?.description ?? undefined} />
       <style>{`
         .pr-hero { position:relative; width:100%; height:72vh; min-height:500px; overflow:hidden; display:flex; align-items:flex-end; }
-        .pr-bg { position:absolute; inset:0; background-image:url('/images/hero.webp'); background-size:cover; background-position:center 30%; }
+        .pr-bg { position:absolute; inset:0; background-image:url('${productsImg}'); background-size:cover; background-position:center 30%; }
         .pr-grad { position:absolute; inset:0; background:linear-gradient(to top, rgba(5,5,5,0.97) 0%, rgba(5,5,5,0.55) 40%, rgba(5,5,5,0.15) 70%, transparent 100%); }
         .pr-content { position:relative; z-index:2; width:100%; max-width:var(--max-w); margin:0 auto; padding:0 var(--pad) 76px; }
         .pr-filter-bar { position:sticky; top:var(--hdr-h); z-index:10; background:rgba(11,11,11,0.96); backdrop-filter:blur(20px); border-bottom:1px solid rgba(255,193,7,0.08); }

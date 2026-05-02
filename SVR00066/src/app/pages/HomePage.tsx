@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router';
 import { motion } from 'framer-motion';
-import { useProducts, useTestimonials, useHomepageSections, usePageSeo } from '../hooks';
+import { useProducts, useTestimonials, useHomepageSections, usePageSeo, useSiteSettings } from '../hooks';
 import { SEO } from '../components/SEO';
 
 const FI = { hidden: { opacity: 0, y: 28 }, show: { opacity: 1, y: 0 } };
@@ -15,11 +15,14 @@ export function HomePage() {
   const { data: testimonials} = useTestimonials();
   const { data: sections   } = useHomepageSections();
   const { data: seo        } = usePageSeo('home');
+  const { settings         } = useSiteSettings();
   const go = (p: string) => { navigate(p); window.scrollTo(0, 0); };
 
   const hero   = sections?.find(s => s.key === 'hero');
   const teaser = sections?.find(s => s.key === 'about_teaser');
   const cta    = sections?.find(s => s.key === 'cta_band');
+
+  const heroImg = settings.img_home_hero ?? '/images/hero.webp';
 
   return (
     <>
@@ -27,7 +30,7 @@ export function HomePage() {
         schema={{ "@context":"https://schema.org","@type":"WebSite","name":"Srivriddhi Enterprise","url":"https://www.srivriddhi.com" }} />
       <style>{`
         .hp-hero { position:relative; width:100%; height:100vh; min-height:600px; overflow:hidden; display:flex; align-items:flex-end; background:var(--bg-main); }
-        .hp-bg   { position:absolute; inset:0; background-image:url('/images/hero.webp'); background-size:cover; background-position:center 20%; transform:scale(1.04); transition:transform 8s ease; }
+        .hp-bg   { position:absolute; inset:0; background-image:url('${heroImg}'); background-size:cover; background-position:center 20%; transform:scale(1.04); transition:transform 8s ease; }
         .hp-hero:hover .hp-bg { transform:scale(1.07); }
         .hp-grad { position:absolute; inset:0; background:linear-gradient(to top, rgba(5,5,5,0.97) 0%, rgba(5,5,5,0.60) 35%, rgba(5,5,5,0.18) 65%, rgba(5,5,5,0.04) 100%); }
         .hp-wm   { position:absolute; top:50%; right:7%; transform:translateY(-50%); width:min(400px,42vw); height:min(400px,42vw); opacity:0.05; pointer-events:none; animation:wmPulse 4s ease-in-out infinite alternate; }

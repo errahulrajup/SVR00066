@@ -1,7 +1,7 @@
 // ── AboutPage ────────────────────────────────────────────────────────────────
 import { useNavigate } from 'react-router';
 import { motion } from 'framer-motion';
-import { useAboutContent, usePageSeo } from '../hooks';
+import { useAboutContent, usePageSeo, useSiteSettings } from '../hooks';
 import { SEO } from '../components/SEO';
 
 const FI = { hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0 } };
@@ -11,7 +11,9 @@ export function AboutPage() {
   const navigate = useNavigate();
   const { content, loading } = useAboutContent();
   const { data: seo } = usePageSeo('about');
+  const { settings } = useSiteSettings();
   const go = (p: string) => { navigate(p); window.scrollTo(0, 0); };
+  const aboutImg = settings.img_about_hero ?? '/images/about.webp';
 
   const PILLARS = [
     { h: 'Built for Scale',    p: 'Distribution is the strategy, not the afterthought.' },
@@ -31,7 +33,7 @@ export function AboutPage() {
       <SEO title={seo?.title ?? 'About — Srivriddhi Enterprise'} description={seo?.description ?? undefined} />
       <style>{`
         .ab-hero { position:relative; width:100%; height:100vh; min-height:580px; overflow:hidden; display:flex; align-items:flex-end; }
-        .ab-bg { position:absolute; inset:0; background-image:url('/images/about.webp'); background-size:cover; background-position:center 20%; }
+        .ab-bg { position:absolute; inset:0; background-image:url('${aboutImg}'); background-size:cover; background-position:center 20%; }
         .ab-grad { position:absolute; inset:0; background:linear-gradient(to top, rgba(5,5,5,0.97) 0%, rgba(5,5,5,0.60) 38%, rgba(5,5,5,0.20) 65%, rgba(5,5,5,0.05) 100%); }
         .ab-content { position:relative; z-index:2; width:100%; max-width:var(--max-w); margin:0 auto; padding:0 var(--pad) 88px; }
         .ab-pillars { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-top:36px; }
