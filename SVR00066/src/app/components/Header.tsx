@@ -10,21 +10,14 @@ const NAV = [
   { label: 'Contact',  path: '/contact' },
 ];
 
-function LogoMark({ size = 32 }: { size?: number }) {
-  return (
-    <img src="/images/logo.png" width={size} height={size} alt="logo"
-      style={{ objectFit: 'contain', display: 'block' }}
-      onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
-  );
-}
-
 export function Header() {
   const [scrolled,   setScrolled]   = useState(false);
   const [menuOpen,   setMenuOpen]   = useState(false);
   const navigate  = useNavigate();
   const location  = useLocation();
   const { settings } = useSiteSettings();
-  const siteName = settings.site_name ?? 'Srivriddhi';
+  const siteName  = settings.site_name ?? 'Srivriddhi';
+  const logoSrc   = settings.site_logo ?? '/images/logo.png';
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 20);
@@ -77,7 +70,9 @@ export function Header() {
           <button className="hdr-logo" onClick={() => go('/')}>
             <div style={{ animation: 'logoPulse 3s ease infinite alternate' }}>
               <style>{`@keyframes logoPulse { from { filter: drop-shadow(0 0 8px rgba(255,193,7,0.3)); } to { filter: drop-shadow(0 0 20px rgba(255,193,7,0.6)); } }`}</style>
-              <LogoMark size={32} />
+              <img src={logoSrc} width={32} height={32} alt="logo"
+                style={{ objectFit: 'contain', display: 'block' }}
+                onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
             </div>
             <div>
               <div className="hdr-brand">{siteName.split(' ')[0]}</div>
