@@ -1,6 +1,6 @@
 import { useState, useEffect, type ChangeEvent } from 'react';
 import { useNavigate, useParams } from 'react-router';
-import { blogApi, inquiriesApi, homepageApi, aboutApi, testimonialsApi, settingsApi, seoApi, type BlogPost, type Testimonial } from '../../lib/supabase';
+import { blogApi, inquiriesApi, homepageApi, aboutApi, testimonialsApi, settingsApi, seoApi, storageApi, type BlogPost, type Testimonial } from '../../lib/supabase';
 import { useBlogPosts, useInquiries, useHomepageSections, useAboutContent, useTestimonials } from '../../hooks';
 import { ImageUpload } from '../../components/ImageUpload';
 
@@ -458,12 +458,15 @@ export function AdminSettings() {
   const [saving,   setSaving]   = useState(false);
   const [saved,    setSaved]    = useState(false);
   const [loading,  setLoading]  = useState(true);
+  const [logoUploading, setLogoUploading] = useState(false);
+  const [logoPreview,   setLogoPreview]   = useState<string | null>(null);
 
   useEffect(() => {
     settingsApi.getAll().then(({ data }) => {
       const m: typeof settings = {};
       (data??[]).forEach(s => { m[s.key] = { label:s.label??s.key, value:s.value??'', group:s.group_name }; });
       setSettings(m);
+      if (m.site_logo?.value) setLogoPreview(m.site_logo.value);
       setLoading(false);
     });
   }, []);
@@ -472,6 +475,22 @@ export function AdminSettings() {
     setSaving(true);
     await Promise.all(Object.entries(settings).map(([k, v]) => settingsApi.set(k, v.value)));
     setSaving(false); setSaved(true); setTimeout(() => setSaved(false), 2500);
+  };
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setLogoUploading(true);
+    const url = await storageApi.upload('site-assets', file);
+    if (url) {
+      setLogoPreview(url);
+      await settingsApi.set('site_logo', url);
+      setSettings(prev => ({
+        ...prev,
+        site_logo: { label: 'Site Logo', value: url, group: 'branding' },
+      }));
+    }
+    setLogoUploading(false);
   };
 
   const groups = Array.from(new Set(Object.values(settings).map(s => s.group)));
@@ -490,8 +509,32 @@ export function AdminSettings() {
         </div>
       </div>
       {loading ? [1,2,3].map(i => <div key={i} className="shimmer" style={{ height:180, borderRadius:'var(--radius-xl)', marginBottom:14 }} />) :
-       groups.map(group => {
-         const keys = Object.entries(settings).filter(([,v]) => v.group===group);
+      <>
+        {/* ── Logo Upload Card ── */}
+        <div style={{ background:'var(--bg-card)', border:'1px solid var(--border)', borderRadius:'var(--radius-xl)', padding:28, marginBottom:14 }}>
+          <h3 style={{ fontFamily:"'Playfair Display',Georgia,serif", fontSize:16, fontWeight:700, color:'#fff', marginBottom:20 }}>Site Logo</h3>
+          <div style={{ display:'flex', alignItems:'center', gap:24, flexWrap:'wrap' }}>
+            <div style={{ width:80, height:80, borderRadius:12, background:'var(--bg-elevated)', border:'1px solid var(--border)', display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden', flexShrink:0 }}>
+              {logoPreview
+                ? <img src={logoPreview} alt="logo" style={{ width:'100%', height:'100%', objectFit:'contain', padding:8 }} />
+                : <span style={{ fontSize:28 }}>🖼️</span>}
+            </div>
+            <div>
+              <label style={{ display:'inline-block', cursor:'pointer' }}>
+                <input type="file" accept="image/*" style={{ display:'none' }} onChange={handleLogoUpload} disabled={logoUploading} />
+                <span className="btn btn-gold" style={{ pointerEvents: logoUploading ? 'none' : 'auto', opacity: logoUploading ? 0.6 : 1 }}>
+                  {logoUploading ? 'Uploading…' : '📤 Upload New Logo'}
+                </span>
+              </label>
+              <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:12, color:'rgba(255,255,255,0.35)', marginTop:8 }}>
+                PNG, WebP, SVG recommended · Max 2MB · Will show in header & footer
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {groups.map(group => {
+         const keys = Object.entries(settings).filter(([,v]) => v.group===group && k !== "site_logo");
          if (!keys.length) return null;
          return (
            <div key={group} style={{ background:'var(--bg-card)', border:'1px solid var(--border)', borderRadius:'var(--radius-xl)', padding:28, marginBottom:14 }}>
@@ -507,6 +550,7 @@ export function AdminSettings() {
            </div>
          );
        })}
+      </>}
     </div>
   );
 }
