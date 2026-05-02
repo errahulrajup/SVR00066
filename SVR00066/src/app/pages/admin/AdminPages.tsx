@@ -461,6 +461,14 @@ export function AdminSettings() {
   const [logoUploading, setLogoUploading] = useState(false);
   const [logoPreview,   setLogoPreview]   = useState<string | null>(null);
 
+  const PAGE_IMAGES = [
+    { key: 'img_home_hero',     label: 'Homepage Hero',    fallback: '/images/hero.webp' },
+    { key: 'img_about_hero',    label: 'About Page Hero',  fallback: '/images/about.webp' },
+    { key: 'img_products_hero', label: 'Products Page Hero', fallback: '/images/hero.webp' },
+    { key: 'img_contact_hero',  label: 'Contact Page Hero', fallback: '/images/contact.webp' },
+  ];
+  const [imgUploading, setImgUploading] = useState<Record<string, boolean>>({});
+
   useEffect(() => {
     settingsApi.getAll().then(({ data }) => {
       const m: typeof settings = {};
@@ -489,8 +497,24 @@ export function AdminSettings() {
         ...prev,
         site_logo: { label: 'Site Logo', value: url, group: 'branding' },
       }));
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
     }
     setLogoUploading(false);
+  };
+
+  const handlePageImageUpload = async (key: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImgUploading(prev => ({ ...prev, [key]: true }));
+    const url = await storageApi.upload('site-assets', file);
+    if (url) {
+      await settingsApi.set(key, url);
+      setSettings(prev => ({ ...prev, [key]: { label: key, value: url, group: 'images' } }));
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    }
+    setImgUploading(prev => ({ ...prev, [key]: false }));
   };
 
   const groups = Array.from(new Set(Object.values(settings).map(s => s.group)));
@@ -531,6 +555,41 @@ export function AdminSettings() {
               </p>
             </div>
           </div>
+        </div>
+
+        {/* ── Page Images Card ── */}
+        <div style={{ background:'var(--bg-card)', border:'1px solid var(--border)', borderRadius:'var(--radius-xl)', padding:28, marginBottom:14 }}>
+          <h3 style={{ fontFamily:"'Playfair Display',Georgia,serif", fontSize:16, fontWeight:700, color:'#fff', marginBottom:20 }}>Page Hero Images</h3>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(280px,1fr))', gap:16 }}>
+            {PAGE_IMAGES.map(({ key, label, fallback }) => {
+              const currentUrl = settings[key]?.value || fallback;
+              const uploading  = imgUploading[key] ?? false;
+              return (
+                <div key={key} style={{ background:'var(--bg-elevated)', border:'1px solid var(--border)', borderRadius:10, overflow:'hidden' }}>
+                  <div style={{ height:120, overflow:'hidden', position:'relative' }}>
+                    <img src={currentUrl} alt={label}
+                      style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }}
+                      onError={e => { (e.target as HTMLImageElement).src = fallback; }} />
+                    <div style={{ position:'absolute', inset:0, background:'rgba(0,0,0,0.35)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                      <span style={{ fontFamily:"'DM Sans',sans-serif", fontSize:11, fontWeight:700, color:'#fff', letterSpacing:'0.1em', textTransform:'uppercase', background:'rgba(0,0,0,0.5)', padding:'4px 10px', borderRadius:4 }}>{label}</span>
+                    </div>
+                  </div>
+                  <div style={{ padding:'12px 14px' }}>
+                    <label style={{ display:'block', cursor:'pointer' }}>
+                      <input type="file" accept="image/*" style={{ display:'none' }}
+                        onChange={e => handlePageImageUpload(key, e)} disabled={uploading} />
+                      <span className="btn btn-gold btn-sm" style={{ width:'100%', display:'block', textAlign:'center', pointerEvents: uploading ? 'none' : 'auto', opacity: uploading ? 0.6 : 1 }}>
+                        {uploading ? 'Uploading…' : '📤 Change Image'}
+                      </span>
+                    </label>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <p style={{ fontFamily:"'DM Sans',sans-serif", fontSize:12, color:'rgba(255,255,255,0.3)', marginTop:14 }}>
+            JPG, WebP, PNG recommended · Min 1920×1080 for best quality
+          </p>
         </div>
 
         {groups.map(group => {
