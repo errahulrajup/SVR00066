@@ -534,7 +534,7 @@ export function AdminSettings() {
         </div>
 
         {groups.map(group => {
-         const keys = Object.entries(settings).filter(([,v]) => v.group===group && k !== "site_logo");
+         const keys = Object.entries(settings).filter(([k, v]) => v.group===group && k !== 'site_logo');
          if (!keys.length) return null;
          return (
            <div key={group} style={{ background:'var(--bg-card)', border:'1px solid var(--border)', borderRadius:'var(--radius-xl)', padding:28, marginBottom:14 }}>
