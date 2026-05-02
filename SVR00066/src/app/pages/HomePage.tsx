@@ -139,12 +139,12 @@ export function HomePage() {
               style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:72, alignItems:'center' }}>
               <motion.div variants={FI} transition={{ duration:0.6 }}>
                 <p className="t-label" style={{ marginBottom:14 }}>Our Standard</p>
-                <h2 className="t-display" style={{ marginBottom:20 }}>{teaser.title ?? 'Plant-Based. Premium. Purposeful.'}</h2>
+                <h2 className="t-display" style={{ marginBottom:20 }}>{teaser?.title ?? 'Plant-Based. Premium. Purposeful.'}</h2>
                 <div style={{ width:48,height:2,background:'linear-gradient(90deg,var(--gold),transparent)',marginBottom:24 }} />
-                <p className="t-lead" style={{ marginBottom:16 }}>{teaser.subtitle}</p>
-                <p className="t-body" style={{ marginBottom:32 }}>{teaser.body}</p>
-                <button className="btn btn-gold btn-lg" onClick={() => go(teaser.cta_link ?? '/about')}>
-                  {teaser.cta_label ?? 'Our Story'} →
+                <p className="t-lead" style={{ marginBottom:16 }}>{teaser?.subtitle}</p>
+                <p className="t-body" style={{ marginBottom:32 }}>{teaser?.body}</p>
+                <button className="btn btn-gold btn-lg" onClick={() => go(teaser?.cta_link ?? '/about')}>
+                  {teaser?.cta_label ?? 'Our Story'} →
                 </button>
               </motion.div>
               <motion.div variants={FI} transition={{ duration:0.6 }}
