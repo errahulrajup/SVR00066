@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
 interface SEOProps {
   title?: string;
@@ -10,6 +10,9 @@ interface SEOProps {
 }
 
 export function SEO({ title, description, ogImage, canonical, type = 'website', schema }: SEOProps) {
+  // Stable reference: only re-run effect when schema content actually changes, not object identity
+  const schemaStr = useMemo(() => schema ? JSON.stringify(schema) : null, [schema]);
+
   useEffect(() => {
     if (title)       document.title = title;
     const setMeta = (name: string, content: string, prop = false) => {
@@ -28,14 +31,14 @@ export function SEO({ title, description, ogImage, canonical, type = 'website', 
     if (canonical)   { let l = document.querySelector('link[rel="canonical"]'); if (!l) { l = document.createElement('link'); l.setAttribute('rel','canonical'); document.head.appendChild(l); } l.setAttribute('href', canonical); }
     setMeta('og:type', type, true);
 
-    if (schema) {
+    if (schemaStr) {
       const id = 'dynamic-schema';
       let s = document.getElementById(id) as HTMLScriptElement | null;
       if (!s) { s = document.createElement('script'); s.id = id; s.type = 'application/ld+json'; document.head.appendChild(s); }
-      s.textContent = JSON.stringify(schema);
+      s.textContent = schemaStr;
     }
     return () => { document.getElementById('dynamic-schema')?.remove(); };
-  }, [title, description, ogImage, canonical, type, schema]);
+  }, [title, description, ogImage, canonical, type, schemaStr]);
 
   return null;
 }
