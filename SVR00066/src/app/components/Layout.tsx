@@ -2,13 +2,16 @@
 import { Outlet } from 'react-router';
 import { Header } from './Header';
 import { Footer } from './Footer';
+import { ErrorBoundary } from './ErrorBoundary';
 
 export function Layout() {
   return (
     <div style={{ background: 'var(--bg-main)', minHeight: '100vh' }}>
       <Header />
       <main id="main-content" style={{ paddingTop: 'var(--hdr-h)' }}>
-        <Outlet />
+        <ErrorBoundary>
+          <Outlet />
+        </ErrorBoundary>
       </main>
       <Footer />
       {/* WhatsApp Float */}
